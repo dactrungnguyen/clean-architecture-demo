@@ -1,6 +1,4 @@
-from a_entities import Item, Order
 from b_use_cases import OrderProcessor, OrderRepository, PaymentProcessor
-from c_interface_adapters import OrderController
 
 
 class InMemoryOrderRepository(OrderRepository):

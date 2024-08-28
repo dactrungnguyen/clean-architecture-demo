@@ -1,5 +1,7 @@
+from flask import Flask, jsonify
+
 from a_entities import Item, Order
-from c_interface_adapters import OrderController
+from c_interface_adapters import DummyOrderController, WebAPIOrderController
 from d_frameworks_and_drivers import (
     DummyOrderProcessor,
     UsdPaymentProcessor,
@@ -10,7 +12,8 @@ from d_frameworks_and_drivers import (
 order_repository = InMemoryOrderRepository()
 payment_processor = UsdPaymentProcessor()
 order_processor = DummyOrderProcessor(order_repository, payment_processor)
-order_controller = OrderController(order_processor)
+dummy_order_controller = DummyOrderController(order_processor)
+web_api_order_controller = WebAPIOrderController(order_processor)
 
 # Adding an order to the repository
 order_repository.add(
@@ -31,6 +34,18 @@ order_repository.add(
     )
 )
 
-# Processing the order
-order_controller.process_order(1)
-order_controller.process_order(2)
+
+app = Flask(__name__)
+
+
+@app.route("/orders/<int:order_id>/process", methods=["POST"])
+def control_order_route(order_id: int) -> tuple:
+    return web_api_order_controller.control_order(order_id)
+
+
+if __name__ == "__main__":
+    # using the dummy controller
+    # order_id = int(input("Enter order ID: "))
+    # dummy_order_controller.control_order(order_id)
+    # using the Web controller
+    app.run(debug=True)
